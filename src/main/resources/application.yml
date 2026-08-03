@@ -22,6 +22,7 @@ eureka:
     enable-self-preservation: false
     eviction-interval-timer-in-ms: 5000
     expected-client-renewal-interval-seconds: 15
+    peer-node-read-timeout-ms: 8000
 
 management:
   endpoints:
