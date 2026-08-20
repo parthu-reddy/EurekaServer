@@ -1,19 +1,14 @@
 server:
   port: 8761
-
 spring:
-  kafka:
-    listener:
-      observation-enabled: true
-    template:
-      observation-enabled: true
   application:
     name: eureka-server
   security:
     user:
       name: ${EUREKA_USER:admin}
       password: ${EUREKA_PASSWORD:admin}
-
+  config:
+    import: optional:classpath:config/platform-defaults.yml
 eureka:
   instance:
     hostname: ${EUREKA_HOSTNAME:localhost}
@@ -28,31 +23,18 @@ eureka:
     eviction-interval-timer-in-ms: 5000
     expected-client-renewal-interval-seconds: 15
     peer-node-read-timeout-ms: 8000
-
 management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: http://localhost:4318/v1/traces
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
   endpoint:
     health:
       probes:
         enabled: true
       show-details: always
-
 logging:
   file:
     name: logs/${spring.application.name}.log
   pattern:
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] [%t] %logger{36} - %msg%n"
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] [%t] %logger{36} - %msg%n'
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
   logback:
     rollingpolicy:
       max-file-size: 10MB
@@ -61,4 +43,3 @@ logging:
   level:
     com.netflix.eureka: WARN
     com.netflix.discovery: WARN
-
