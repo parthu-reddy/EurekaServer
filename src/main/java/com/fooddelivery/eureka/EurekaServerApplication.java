@@ -4,7 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
-@SpringBootApplication(scanBasePackages = {"com.fooddelivery"})
+@SpringBootApplication(
+    scanBasePackages = {"com.fooddelivery.eureka", "com.fooddelivery.common"}
+)
 @org.springframework.context.annotation.ComponentScan({"com.fooddelivery", "com.fooddelivery.common"})
 @EnableEurekaServer
 public class EurekaServerApplication {
