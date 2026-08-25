@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: eureka-server
+  cloud:
+    config:
+      enabled: false
   security:
     user:
       name: ${EUREKA_USER:admin}
