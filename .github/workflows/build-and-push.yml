@@ -73,7 +73,9 @@ jobs:
           context: .
           file: EurekaServer/Dockerfile
           push: true
-          tags: hyd.ocir.io/axekmbadoczl/food-delivery/eureka-server:${{ github.sha }}
+          tags: |
+            hyd.ocir.io/axekmbadoczl/food-delivery/eureka-server-1:${{ github.sha }}
+            hyd.ocir.io/axekmbadoczl/food-delivery/eureka-server-2:${{ github.sha }}
           platforms: linux/arm64
 
       - name: Checkout Deployment Repo
@@ -98,12 +100,17 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            TAG_VAR=$(echo "eureka-server" | tr '[:lower:]' '[:upper:]' | tr '-' '_')_TAG
-            if grep -q "^${TAG_VAR}=" .versions; then
-              sed -i "s/^${TAG_VAR}=.*/${TAG_VAR}=${{ github.sha }}/g" .versions
-            else
-              echo "${TAG_VAR}=${{ github.sha }}" >> .versions
-            fi
+            # Update both eureka-server-1 and eureka-server-2 tags
+            for i in 1 2; do
+              TAG_VAR="EUREKA_SERVER_${i}_TAG"
+              if grep -q "^${TAG_VAR}=" .versions; then
+                sed -i "s/^${TAG_VAR}=.*/${TAG_VAR}=${{ github.sha }}/g" .versions
+              else
+                echo "${TAG_VAR}=${{ github.sha }}" >> .versions
+              fi
+            done
+            # Remove any generic EUREKA_SERVER_TAG to prevent deployment issues
+            sed -i '/^EUREKA_SERVER_TAG=/d' .versions
 
             # Check if there are changes to commit
             if git diff --quiet; then
