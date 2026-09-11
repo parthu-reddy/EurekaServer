@@ -67,6 +67,22 @@ jobs:
           username: ${{ secrets.OCIR_USERNAME }}
           password: ${{ secrets.OCIR_TOKEN }}
 
+      - name: Trigger Contract Verification
+#        uses: peter-evans/repository-dispatch@v3
+#        with:
+#          token: ${{ secrets.CHECKOUT_TOKEN }}
+#          repository: parthu-reddy/FoodDeliveryContracts
+#          event-type: module-pushed
+      - name: Checkout Deployment Repo
+        uses: actions/checkout@v5
+        with:
+          repository: parthu-reddy/Deployment
+          path: deps/Deployment
+          token: ${{ secrets.CHECKOUT_TOKEN }}
+
+      - name: Clean up old Docker images
+        run: python3 deps/Deployment/retention.py --apply --delete-all --service eureka-server
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -77,16 +93,6 @@ jobs:
             hyd.ocir.io/axekmbadoczl/food-delivery/eureka-server-1:${{ github.sha }}
             hyd.ocir.io/axekmbadoczl/food-delivery/eureka-server-2:${{ github.sha }}
           platforms: linux/arm64
-
-      - name: Checkout Deployment Repo
-        uses: actions/checkout@v5
-        with:
-          repository: parthu-reddy/Deployment
-          path: deps/Deployment
-          token: ${{ secrets.CHECKOUT_TOKEN }}
-
-      - name: Clean up old Docker images
-        run: python3 deps/Deployment/retention.py --apply --service eureka-server
 
       - name: Update .versions file
         working-directory: deps/Deployment
@@ -135,9 +141,4 @@ jobs:
             sleep $((1 + RANDOM % 5))
           done
 
-#      - name: Trigger Contract Verification
-#        uses: peter-evans/repository-dispatch@v3
-#        with:
-#          token: ${{ secrets.CHECKOUT_TOKEN }}
-#          repository: parthu-reddy/FoodDeliveryContracts
-#          event-type: module-pushed
+#
