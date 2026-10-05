@@ -84,24 +84,20 @@ jobs:
             git pull --rebase origin main
 
             # Update both eureka-server-1 and eureka-server-2 tags
+            mkdir -p env_deployments/dev
             for i in 1 2; do
               TAG_VAR="EUREKA_SERVER_${i}_TAG"
-              if grep -q "^${TAG_VAR}=" .versions; then
-                sed -i "s/^${TAG_VAR}=.*/${TAG_VAR}=${{ github.sha }}/g" .versions
-              else
-                echo "${TAG_VAR}=${{ github.sha }}" >> .versions
-              fi
+              echo "${TAG_VAR}=${{ github.sha }}" > env_deployments/dev/eureka-server-${i}.env
+              git add env_deployments/dev/eureka-server-${i}.env
             done
-            # Remove any generic EUREKA_SERVER_TAG to prevent deployment issues
-            sed -i '/^EUREKA_SERVER_TAG=/d' .versions
 
             # Check if there are changes to commit
-            if git diff --quiet; then
+            if git diff --cached --quiet; then
               echo "No changes to commit"
               break
             fi
 
-            git commit -am "Update ${TAG_VAR} with new image tag"
+            git commit -m "Update Eureka tags with new image tag"
             
             if git push origin HEAD:main; then
               echo "Successfully updated .versions!"
